@@ -54,7 +54,7 @@ export default function chatMode(pi: ExtensionAPI) {
 
   // ─── State transitions ─────────────────────────────────────────────────────
 
-  function enterChatMode(ctx: ExtensionContext): void {
+  function enterChatMode(ctx: ExtensionContext, notify = true): void {
     // Mutual-exclusion guard: plan + chat cannot co-activate (undefined = plan-mode ext not loaded = allowed)
     const planMode = (globalThis as Record<string, unknown>).__planMode as { mode?: string } | undefined;
     if (planMode?.mode && planMode.mode !== "off") {
@@ -64,14 +64,14 @@ export default function chatMode(pi: ExtensionAPI) {
     transition("chat", pi);
     saveAndSetActiveTools(CHAT_MODE_TOOLS);
     updateStatus(ctx);
-    if (ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(USER_CONFIG.labels.chat.notify, USER_CONFIG.labels.chat.notifyType as "info" | "warning" | "error");
+    if (notify && ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(USER_CONFIG.labels.chat.notify, USER_CONFIG.labels.chat.notifyType as "info" | "warning" | "error");
   }
 
-  function enterOffMode(ctx: ExtensionContext): void {
+  function enterOffMode(ctx: ExtensionContext, notify = true): void {
     transition("off", pi);
     restoreAllTools();
     updateStatus(ctx);
-    if (ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(USER_CONFIG.labels.off.notify, USER_CONFIG.labels.off.notifyType as "info" | "warning" | "error");
+    if (notify && ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(USER_CONFIG.labels.off.notify, USER_CONFIG.labels.off.notifyType as "info" | "warning" | "error");
   }
 
   // ─── Re-derive state from entries on the current branch ──────────────────────
@@ -180,4 +180,15 @@ export default function chatMode(pi: ExtensionAPI) {
     type: "boolean",
     description: "Start in chat mode (read-only conversational)",
   });
+
+  // Expose lightweight control API for companion extensions (e.g. mode-cycle)
+  (globalThis as Record<string, unknown>).__chatModeControl = {
+    enter: (ctx: ExtensionContext, notify = true) => enterChatMode(ctx, notify),
+    off: (ctx: ExtensionContext, notify = true) => enterOffMode(ctx, notify),
+    toggle: (ctx: ExtensionContext, notify = true) => {
+      if (getMode() === "off") enterChatMode(ctx, notify);
+      else enterOffMode(ctx, notify);
+    },
+    getMode: () => getMode(),
+  };
 }

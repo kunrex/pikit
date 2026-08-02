@@ -112,13 +112,13 @@ export default function planMode(pi: ExtensionAPI) {
     return false;
   }
 
-  function enterPlanMode(ctx: ExtensionContext): void {
+  function enterPlanMode(ctx: ExtensionContext, notify = true): void {
     // Mutual-exclusion guard: chat + plan cannot co-activate
     if (chatActive(ctx)) return;
     transition("plan", pi);
     saveAndSetActiveTools(PLAN_MODE_TOOLS);
     updateStatus(ctx);
-    if (ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(USER_CONFIG.labels.plan.notify, USER_CONFIG.labels.plan.notifyType as "info" | "warning" | "error");
+    if (notify && ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(USER_CONFIG.labels.plan.notify, USER_CONFIG.labels.plan.notifyType as "info" | "warning" | "error");
   }
 
   function enterExecuteMode(ctx: ExtensionContext): void {
@@ -135,11 +135,11 @@ export default function planMode(pi: ExtensionAPI) {
     if (ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(notifyText, USER_CONFIG.labels.execute.notifyType as "info" | "warning" | "error");
   }
 
-  function enterOffMode(ctx: ExtensionContext, message?: string): void {
+  function enterOffMode(ctx: ExtensionContext, message?: string, notify = true): void {
     transition("off", pi);
     restoreAllTools();
     updateStatus(ctx);
-    if (ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(
+    if (notify && ctx.hasUI && !USER_CONFIG.ui.hideNotify) ctx.ui.notify(
       message ?? USER_CONFIG.labels.off.notify,
       message ? "info" : (USER_CONFIG.labels.off.notifyType as "info" | "warning" | "error")
     );
@@ -562,5 +562,12 @@ export default function planMode(pi: ExtensionAPI) {
     type: "boolean",
     description: "Start in plan mode (read-only, explore and plan)",
   });
+
+  // Expose lightweight control API for companion extensions (e.g. mode-cycle)
+  (globalThis as Record<string, unknown>).__planModeControl = {
+    enter: (ctx: ExtensionContext, notify = true) => enterPlanMode(ctx, notify),
+    off: (ctx: ExtensionContext, notify = true) => enterOffMode(ctx, undefined, notify),
+    getMode: () => getMode(),
+  };
 }
 

@@ -157,6 +157,18 @@ function notifyModeChange(ctx: ExtensionContext): void {
   ctx.ui.notify(`Caveman on — ${label}: ${descriptions[state.mode]}`, "info");
 }
 
+function applyLevel(level: CavemanLevel, pi: ExtensionAPI, ctx: ExtensionContext, notify = true): void {
+  if (level === "off") {
+    setState(false, state.mode);
+  } else {
+    setState(true, level);
+  }
+
+  pi.appendEntry("caveman-level", { level: state.enabled ? state.mode : "off" });
+  saveConfig({ defaultLevel: state.enabled ? state.mode : "off" });
+  if (notify && ctx.hasUI) notifyModeChange(ctx);
+}
+
 // ─── Extension ───────────────────────────────────────────────────────────────
 
 export default function caveman(pi: ExtensionAPI) {
@@ -205,11 +217,11 @@ export default function caveman(pi: ExtensionAPI) {
       const sub = (args ?? "").trim().toLowerCase();
 
       if (sub === "") {
-        setState(!state.enabled, state.mode);
+        applyLevel(state.enabled ? "off" : state.mode, pi, ctx);
       } else if (sub === "off") {
-        setState(false, state.mode);
+        applyLevel("off", pi, ctx);
       } else if (sub === "lite" || sub === "full" || sub === "ultra") {
-        setState(true, sub);
+        applyLevel(sub, pi, ctx);
       } else {
         ctx.ui.notify(
           [
@@ -225,10 +237,14 @@ export default function caveman(pi: ExtensionAPI) {
         );
         return;
       }
-
-      pi.appendEntry("caveman-level", { level: state.enabled ? state.mode : "off" });
-      saveConfig({ defaultLevel: state.enabled ? state.mode : "off" });
-      notifyModeChange(ctx);
     },
   });
+
+  // Expose lightweight control API for companion extensions (e.g. mode-cycle)
+  (globalThis as Record<string, unknown>).__cavemanControl = {
+    set: (ctx: ExtensionContext, mode: CavemanMode = "full", notify = true) => applyLevel(mode, pi, ctx, notify),
+    off: (ctx: ExtensionContext, notify = true) => applyLevel("off", pi, ctx, notify),
+    toggle: (ctx: ExtensionContext, notify = true) => applyLevel(state.enabled ? "off" : state.mode, pi, ctx, notify),
+    getState: () => ({ enabled: state.enabled, mode: state.mode }),
+  };
 }

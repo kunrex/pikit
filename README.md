@@ -39,7 +39,8 @@ agent/
 │   ├── handoff.md               # /handoff — write a session handoff document to .pi/handoffs/
 │   └── pickup.md                # /pickup — resume work from the latest handoff document
 ├── themes/
-│   └── slop.json                # Custom warm color theme
+│   ├── slop.json                # Default purplish-blue dark theme
+│   └── lavender.json            # Lavender variant (same family palette)
 └── extensions/
     ├── chat-input/              # Unicode box border around the main chat input editor
     ├── caveman/                 # Compresses LLM responses: lite (professional) / full (caveman) / ultra (max compression)
@@ -48,6 +49,7 @@ agent/
     ├── mcp/                     # MCP server bridge with lazy connections and proxy tool
     ├── plan-mode/               # Plan-then-execute workflow: read-only planning, then execute with plan_complete
     ├── chat-mode/               # Read-only conversational mode: chat, explore, search — no edits
+    ├── mode-cycle/              # Shift+Tab cycle ring: caveman → chat → plan
     ├── permission-gate/         # Confirms dangerous bash commands before running
     ├── protected-paths/         # Blocks read/write access to sensitive files and directories
     ├── llm-council/             # Multi-model council: members answer independently, chairman synthesises
@@ -122,6 +124,7 @@ npm i
 * **chat-mode** — Toggled via `/chat` or `Ctrl+Shift+C`. Locks the filesystem to read-only so you can freely discuss, search, and parse code without risk of accidental changes. → [`README`](agent/extensions/chat-mode/README.md)
 * **subagents** — Delegates isolated tasks to background `pi` subprocesses. Supports running single tasks, parallel batches, or piped execution chains. → [`README`](agent/extensions/subagents/README.md)
 * **llm-council** — Runs questions across a parallel panel of distinct models, then passes their independent findings to a chairman model to synthesize a final answer. → [`README`](agent/extensions/llm-council/README.md)
+* **mode-cycle** — Rebind-friendly mode ring on `Shift+Tab`: cycles `caveman → chat → plan` so one key can drive your high-level working mode. → [`README`](agent/extensions/mode-cycle/README.md)
 
 ### UI & UX
 
@@ -180,9 +183,13 @@ Review a GitHub PR and emit the findings as a markdown artifact (rendered HTML r
 
 ## Theme
 
-### slop
+### slop (default)
 
-A warm, earthy palette with terracotta primary (`#d67858`) and warm-white text (`#f5f2ee`), covering all 51 pi color tokens including syntax highlighting and thinking level indicators. Activate via `/settings → Theme → slop`.
+A dark, purplish-blue palette tuned for dark terminals — lavender primary (`#9a7cff`), cool blue secondary (`#9db4ff`), and soft off-white text (`#eef2ff`). Covers all 51 pi color tokens (syntax + thinking indicators included). Activate via `/settings → Theme → slop`.
+
+### lavender
+
+Lavender-named variant in the same palette family for users who want a more explicit theme label. Activate via `/settings → Theme → lavender`.
 
 ---
 
