@@ -1,0 +1,80 @@
+{
+  "$schema": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
+  "name": "lavender",
+  "vars": {
+    "primary": "#9a7cff",
+    "text": "#eef2ff",
+    "muted": "#9db4ff",
+    "faint": "#6f7fbb"
+  },
+  "colors": {
+    "accent": "primary",
+    "border": "faint",
+    "borderAccent": "primary",
+    "borderMuted": "faint",
+
+    "success": "#8acb88",
+    "error": "#d47a9f",
+    "warning": "#d3c57d",
+
+    "muted": "muted",
+    "dim": "faint",
+    "separator": "#3d4566",
+    "chatModeBorder": "#7ea2ff",
+
+    "text": "text",
+    "thinkingText": "faint",
+    "selectedBg": "#2a324f",
+
+    "userMessageBg": "#1f273d",
+    "userMessageText": "text",
+
+    "customMessageBg": "#242c46",
+    "customMessageText": "text",
+    "customMessageLabel": "#b192ff",
+
+    "toolPendingBg": "#1d2337",
+    "toolSuccessBg": "#21362e",
+    "toolErrorBg": "#3a2432",
+    "toolTitle": "#a9b8ff",
+    "toolOutput": "text",
+    "toolDiffAdded": "#93d7a0",
+    "toolDiffRemoved": "#e08caf",
+    "toolDiffContext": "#8c86a8",
+
+    "mdHeading": "#cfc0ff",
+    "mdLink": "#88b0ff",
+    "mdLinkUrl": "#7d84a8",
+    "mdCode": "#96d9d6",
+    "mdCodeBlock": "#b0d49a",
+    "mdCodeBlockBorder": "#6a7499",
+    "mdQuote": "#8c97bc",
+    "mdQuoteBorder": "#8c97bc",
+    "mdHr": "#6a7499",
+    "mdListBullet": "#96d9d6",
+
+    "syntaxComment": "#7fa784",
+    "syntaxKeyword": "#86a8ff",
+    "syntaxFunction": "#cfc0ff",
+    "syntaxVariable": "#b8d8ff",
+    "syntaxString": "#dba0bf",
+    "syntaxNumber": "#b8d99e",
+    "syntaxType": "#89d0c8",
+    "syntaxOperator": "#d7d3ea",
+    "syntaxPunctuation": "#d7d3ea",
+
+    "thinkingOff": "#6f7fbb",
+    "thinkingMinimal": "#6f7fbb",
+    "thinkingLow": "#6f7fbb",
+    "thinkingMedium": "#6f7fbb",
+    "thinkingHigh": "#6f7fbb",
+    "thinkingXhigh": "#6f7fbb",
+    "thinkingMax": "#6f7fbb",
+    "bashMode": "#a9d29a"
+  },
+  "export": {
+    "pageBg": "#131826",
+    "cardBg": "#1f2740",
+    "infoBg": "#2a324f"
+  }
+}
