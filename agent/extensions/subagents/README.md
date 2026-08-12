@@ -1,128 +1,111 @@
 # subagents
 
-Delegate tasks to specialized subagents — child pi processes that work independently with their own model, tools, extensions, and skills. Supports single, parallel, and chain modes.
+Delegate work to specialized child pi agents.
 
 ## How it works
 
-1. Parent LLM calls the `subagent` tool in one of three modes
-2. Extension spawns child pi processes with agent-specific config (`--mode json -p --no-session`)
-3. System prompt written to temp file, passed via `--append-system-prompt`
-4. JSON line stream parsed — assistant `message_end` text collected
-5. Results returned to parent LLM
+The extension registers one tool: `subagent`.
 
-Child processes are guarded by `PI_SUBAGENT_DEPTH` — subagents cannot spawn further subagents.
+When called, it starts child `pi` processes with agent-specific config. Each child can have its own model, tools, extensions, skills, and system prompt. Results stream back to the parent agent.
 
-### Modes
+Subagents cannot spawn more subagents. `PI_SUBAGENT_DEPTH` prevents recursion.
 
-| Mode | Parameter | Description |
-|------|-----------|-------------|
-| **Single** | `agent` + `task` | One subagent, synchronous. Existing behavior. |
-| **Parallel** | `tasks` (array) | Up to 8 tasks, 4 concurrent. Results aggregated. |
-| **Chain** | `chain` (array) | Sequential steps. Use `{previous}` to pipe prior output forward. |
+## Modes
+
+| Mode | Input | Description |
+|------|-------|-------------|
+| Single | `agent` + `task` | Run one agent on one task |
+| Parallel | `tasks` | Run up to 8 tasks, 4 concurrent |
+| Chain | `chain` | Run steps in order; use `{previous}` to pass prior output |
 
 ## Agent files
 
-Agents are `.md` files with YAML frontmatter and a body (system prompt).
+Agents are markdown files with YAML frontmatter plus a system prompt body.
 
-### File locations
+Locations:
 
-| Location | Scope | Priority |
-|----------|-------|----------|
-| `.pi/agents/` (project) | This project only | Higher — overwrites user agents on name conflict |
-| `~/.pi/agent/agents/` (user) | All projects | Lower |
+- Project: `.pi/agents/`
+- User: `~/.pi/agent/agents/`
 
-### Frontmatter fields
+Example:
 
-| Field | Required | Type | Description |
-|-------|----------|------|-------------|
-| `name` | **Yes** | string | Unique identifier (e.g. `scout`) |
-| `description` | **Yes** | string | What the agent does — shown in tool description |
-| `tools` | No | string | Comma-separated tool names. Absent → default list (`read, grep, find, ls, web_search, fetch_content, get_search_content`). Empty → no tools. |
-| `model` | No | string | Model for the subagent. Omitted → inherits from parent. |
-| `thinking` | No | string | Thinking budget: `low`, `medium`, `high`. Omitted → inherits from parent. |
-| `extensions` | No | string | Extensions to load. Absent → defaults (`env-loader, web-access, permission-gate, protected-paths`). Empty → no extensions. Values → exact list. Paths resolved to `~/.pi/agent/extensions/<name>/index.ts`. |
-| `skills` | No | string | Skills to load. Absent → none. Empty → no skills. Values → exact list. Paths resolved to `~/.pi/agent/skills/<name>/SKILL.md`. |
+```md
+---
+name: scout
+description: Find relevant files and summarize code structure
+tools: read, grep, find, ls
+model: kimi-k2.6:cloud
+thinking: medium
+---
 
-### Example
-
-See `examples/scout.md` in this extension directory. Copy it to `.pi/agents/` (pi's installation folder) or `~/.pi/agent/agents/` (project folder) to use.
-
-## Usage patterns
-
-### Single mode
-
-Delegate one task to one agent:
-
-```
-subagent(agent="scout", task="Find all database connection code in this project")
+You are a code scout. Search first, read only relevant files, report concise findings with paths.
 ```
 
-### Parallel mode
+Required fields:
 
-Dispatch independent tasks concurrently (max 8, 4 at a time):
+- `name`
+- `description`
 
+Optional fields:
+
+- `tools`
+- `model`
+- `thinking`
+- `extensions`
+- `skills`
+
+## Usage examples
+
+Single:
+
+```json
+{
+  "agent": "scout",
+  "task": "Find auth middleware and summarize token validation flow"
+}
 ```
-subagent(tasks=[
-  {agent="scout", task="Find all auth-related code"},
-  {agent="reviewer", task="Check db/pool.ts for connection leaks"},
-  {agent="tester", task="Run the existing test suite"}
-])
+
+Parallel:
+
+```json
+{
+  "tasks": [
+    { "agent": "scout", "task": "Find DB connection code" },
+    { "agent": "reviewer", "task": "Review auth middleware for bugs" }
+  ]
+}
 ```
 
-### Chain mode
+Chain:
 
-Sequential steps with output piping via `{previous}`:
-
+```json
+{
+  "chain": [
+    { "agent": "scout", "task": "Find auth-related files" },
+    { "agent": "planner", "task": "Using this context: {previous}\nPlan cleanup steps" }
+  ]
+}
 ```
-subagent(chain=[
-  {agent="scout", task="Find all auth-related code"},
-  {agent="planner", task="Previous findings: {previous}. Design an OAuth migration plan."},
-  {agent="worker", task="Plan: {previous}. Implement the migration."}
-])
-```
-
-Chain stops on first error. `{previous}` is auto-substituted — never shown to the user.
-
-### Auto-orchestration
-
-The parent LLM reads agent descriptions from the tool prompt and chooses modes autonomously when it sees a suitable match.
 
 ## Configuration
 
-Place `subagents.json` at `~/.pi/agent/configs/subagents.json`. See `subagents.example.json` for all options.
+Optional display config lives at:
 
-All fields optional — defaults match styled-outputs/LLM Council conventions.
+```bash
+~/.pi/agent/configs/subagents.json
+```
 
-| Section | Key | Default | Purpose |
-|---------|-----|---------|---------|
-| `spinner` | `prefixChars` | `["·","✢","✳","✶","✻","✽"]` | Animation frames |
-| | `interval` | `80` | Frame interval (ms) |
-| | `color` | `"muted"` | Spinner color |
-| `successPrefix` | `prefix` | `"✓"` | Success icon |
-| | `color` | `"success"` | Icon color |
-| `errorPrefix` | `prefix` | `"✗"` | Error icon |
-| | `color` | `"error"` | Icon color |
-| `branch` | `prefix` | `"└─"` | Branch prefix |
-| | `color` | `"separator"` | Branch color |
-| `status` | `doneLabel` | `"Done"` | Done status text |
-| | `doneColor` | `"success"` | Done text color |
-| | `errorLabel` | `"Error"` | Error status text |
-| | `errorColor` | `"error"` | Error text color |
-| | `workingLabel` | `"Running..."` | Working status text |
-| | `workingColor` | `"dim"` | Working text color |
-| | `waitingIcon` | `"↪"` | Waiting/pending icon |
-| | `waitingIconColor` | `"muted"` | Waiting icon color |
-| | `elapsedColor` | `"muted"` | Elapsed time color |
-| | `countColor` | `"muted"` | Line count color |
-| | `separatorColor` | `"dim"` | "•" separator color |
-| `header` | `titleColor` | `"toolTitle"` | "Subagent" label color |
-| | `agentColor` | `"accent"` | Agent name color |
-| | `summaryColor` | `"muted"` | Progress summary color (e.g. "step 2/3") |
-| `expandHint` | `color` | `"dim"` | Expand hint color |
+Copy starter config:
 
-## Limitations
+```bash
+cp ~/.pi/agent/extensions/subagents/subagents.example.json \
+   ~/.pi/agent/configs/subagents.json
+```
 
-- **No recursion** — `PI_SUBAGENT_DEPTH` prevents subagents from spawning more subagents
-- **No builtin agents** — you must create agent `.md` files first
-- **`/reload` required** — new agent files are not picked up until you reload pi extensions
-- **Parallel cap** — max 8 tasks, 4 concurrent (internal limits, not user-configurable)
+Most users do not need config.
+
+## Notes
+
+- Run `/reload` after adding or editing agent files.
+- No built-in agents are provided; create `.md` agent files first.
+- Parallel mode caps at 8 tasks total, 4 concurrent.

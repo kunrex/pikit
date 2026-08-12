@@ -544,17 +544,19 @@ export default function planMode(pi: ExtensionAPI) {
 
   // ─── Shortcut: toggle plan mode ─────────────────────────────────────────────
 
-  pi.registerShortcut(USER_CONFIG.shortcuts.toggleMode as KeyId, {
-    description: "Toggle plan mode",
-    handler: async (ctx) => {
-      const current = getMode();
-      if (current === "off") {
-        enterPlanMode(ctx);
-      } else {
-        enterOffMode(ctx);
-      }
-    },
-  });
+  if (USER_CONFIG.shortcuts.toggleMode) {
+    pi.registerShortcut(USER_CONFIG.shortcuts.toggleMode as KeyId, {
+      description: "Toggle plan mode",
+      handler: async (ctx) => {
+        const current = getMode();
+        if (current === "off") {
+          enterPlanMode(ctx);
+        } else {
+          enterOffMode(ctx);
+        }
+      },
+    });
+  }
 
   // ─── Flag: --plan ──────────────────────────────────────────────────────────
 

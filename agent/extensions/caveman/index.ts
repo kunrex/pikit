@@ -1,4 +1,5 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type {
@@ -7,8 +8,9 @@ import type {
   BeforeAgentStartEvent,
   BeforeAgentStartEventResult,
 } from "@earendil-works/pi-coding-agent";
+import type { KeyId } from "@earendil-works/pi-tui";
 
-export type CavemanMode = "lite" | "full" | "ultra";
+export type CavemanMode = "lite" | "full";
 type CavemanLevel = CavemanMode | "off";
 
 export interface CavemanState {
@@ -20,21 +22,47 @@ export interface CavemanState {
 
 interface CavemanConfig {
   defaultLevel: CavemanLevel;
+  shortcuts: {
+    toggleMode: string;
+  };
 }
 
 const CONFIG_PATH = join(homedir(), ".pi", "agent", "configs", "caveman.json");
-const DEFAULT_CONFIG: CavemanConfig = { defaultLevel: "off" };
-const VALID_LEVELS = new Set<CavemanLevel>(["off", "lite", "full", "ultra"]);
+const DEFAULT_CONFIG: CavemanConfig = {
+  defaultLevel: "off",
+  shortcuts: { toggleMode: "super+shift+tab" },
+};
+const VALID_LEVELS = new Set<CavemanLevel>(["off", "lite", "full"]);
+
+function normalizeLevel(value: unknown): CavemanLevel | null {
+  if (value === "ultra") return "full"; // legacy: old ultra is now full
+  return VALID_LEVELS.has(value as CavemanLevel) ? value as CavemanLevel : null;
+}
+
+function normalizeConfig(parsed: any): CavemanConfig {
+  return {
+    defaultLevel: normalizeLevel(parsed?.defaultLevel) ?? DEFAULT_CONFIG.defaultLevel,
+    shortcuts: {
+      toggleMode: typeof parsed?.shortcuts?.toggleMode === "string"
+        ? parsed.shortcuts.toggleMode
+        : DEFAULT_CONFIG.shortcuts.toggleMode,
+    },
+  };
+}
 
 async function loadConfig(): Promise<CavemanConfig> {
   try {
-    const raw = await readFile(CONFIG_PATH, "utf8");
-    const parsed = JSON.parse(raw);
-    return VALID_LEVELS.has(parsed.defaultLevel)
-      ? { defaultLevel: parsed.defaultLevel as CavemanLevel }
-      : { ...DEFAULT_CONFIG };
+    return normalizeConfig(JSON.parse(await readFile(CONFIG_PATH, "utf8")));
   } catch {
-    return { ...DEFAULT_CONFIG };
+    return { ...DEFAULT_CONFIG, shortcuts: { ...DEFAULT_CONFIG.shortcuts } };
+  }
+}
+
+function loadConfigSync(): CavemanConfig {
+  try {
+    return normalizeConfig(JSON.parse(readFileSync(CONFIG_PATH, "utf8")));
+  } catch {
+    return { ...DEFAULT_CONFIG, shortcuts: { ...DEFAULT_CONFIG.shortcuts } };
   }
 }
 
@@ -88,19 +116,9 @@ Example: "Your component re-renders because you create a new object reference ea
 
 Spectrum (same fix, different compression):
 - lite (you):  "Your component re-renders because you create a new object reference each render. Wrap it in \`useMemo\`."
-- full:        "New object ref each render. Inline object prop = new ref = re-render. Wrap in \`useMemo\`."
-- ultra:       "Inline obj prop → new ref → re-render. \`useMemo\`."`,
+- full:        "Inline obj prop → new ref → re-render. \`useMemo\`."`,
 
   full: `\
-Drop articles, fragments OK, short synonyms.
-Example: "New object ref each render. Inline object prop = new ref = re-render. Wrap in \`useMemo\`."
-
-Spectrum (same fix, different compression):
-- lite:        "Your component re-renders because you create a new object reference each render. Wrap it in \`useMemo\`."
-- full (you):  "New object ref each render. Inline object prop = new ref = re-render. Wrap in \`useMemo\`."
-- ultra:       "Inline obj prop → new ref → re-render. \`useMemo\`."`,
-
-  ultra: `\
 MUST abbreviate all terms (DB/auth/config/req/res/fn/impl), strip ALL conjunctions & articles, arrows for causality (X → Y), one word beats two. \
 Code symbols, function names, API names, error strings: never abbreviate.
 Example - before: "The bug is in the authentication middleware. The token expiry check uses less-than instead of less-than-or-equal."
@@ -110,8 +128,7 @@ After: "Pool reuse DB conn. Skip handshake → fast under load."
 
 Spectrum (same fix, different compression):
 - lite:        "Your component re-renders because you create a new object reference each render. Wrap it in \`useMemo\`."
-- full:        "New object ref each render. Inline object prop = new ref = re-render. Wrap in \`useMemo\`."
-- ultra (you): "Inline obj prop → new ref → re-render. \`useMemo\`."`,
+- full (you):  "Inline obj prop → new ref → re-render. \`useMemo\`."`,
 };
 
 // Safety clause — shared across all modes
@@ -128,7 +145,6 @@ function buildSystemPrompt(mode: CavemanMode, base: string): string {
 const MODE_LABELS: Record<CavemanMode, string> = {
   lite: "lite",
   full: "full",
-  ultra: "ultra",
 };
 
 // Module-level state — shared via globalThis for footer segment reads
@@ -151,8 +167,7 @@ function notifyModeChange(ctx: ExtensionContext): void {
   const label = MODE_LABELS[state.mode];
   const descriptions: Record<CavemanMode, string> = {
     lite: "Professional, no fluff",
-    full: "Classic caveman (default)",
-    ultra: "Maximum compression",
+    full: "Maximum compression",
   };
   ctx.ui.notify(`Caveman on — ${label}: ${descriptions[state.mode]}`, "info");
 }
@@ -165,8 +180,18 @@ function applyLevel(level: CavemanLevel, pi: ExtensionAPI, ctx: ExtensionContext
   }
 
   pi.appendEntry("caveman-level", { level: state.enabled ? state.mode : "off" });
-  saveConfig({ defaultLevel: state.enabled ? state.mode : "off" });
+  saveConfig({ ...loadConfigSync(), defaultLevel: state.enabled ? state.mode : "off" });
   if (notify && ctx.hasUI) notifyModeChange(ctx);
+}
+
+function cycleLevel(pi: ExtensionAPI, ctx: ExtensionContext, notify = true): void {
+  if (!state.enabled) {
+    applyLevel("lite", pi, ctx, notify);
+  } else if (state.mode === "lite") {
+    applyLevel("full", pi, ctx, notify);
+  } else {
+    applyLevel("off", pi, ctx, notify);
+  }
 }
 
 // ─── Extension ───────────────────────────────────────────────────────────────
@@ -184,9 +209,10 @@ export default function caveman(pi: ExtensionAPI) {
       }
     }
 
-    if (sessionLevel !== null && VALID_LEVELS.has(sessionLevel)) {
+    const normalizedSessionLevel = normalizeLevel(sessionLevel);
+    if (normalizedSessionLevel !== null) {
       // Resuming a forked/switched session — restore exact state
-      setState(sessionLevel !== "off", sessionLevel === "off" ? state.mode : sessionLevel);
+      setState(normalizedSessionLevel !== "off", normalizedSessionLevel === "off" ? state.mode : normalizedSessionLevel);
     } else {
       // New session — apply config default
       const config = await loadConfig();
@@ -206,21 +232,21 @@ export default function caveman(pi: ExtensionAPI) {
     },
   );
 
-  // /caveman [lite|full|ultra]
-  // No args: toggle on/off (defaults to full)
+  // /caveman [lite|full]
+  // No args: cycle off → lite → full → off
   pi.registerCommand("caveman", {
     description:
-      "Toggle caveman speak mode. Subcommands: lite · full · ultra. No args: toggle on/off.",
+      "Toggle caveman speak mode. Subcommands: lite · full. No args: cycle off → lite → full → off.",
     handler: async (args: string | undefined, ctx: ExtensionContext) => {
       if (!ctx.hasUI) return;
 
       const sub = (args ?? "").trim().toLowerCase();
 
       if (sub === "") {
-        applyLevel(state.enabled ? "off" : state.mode, pi, ctx);
+        cycleLevel(pi, ctx);
       } else if (sub === "off") {
         applyLevel("off", pi, ctx);
-      } else if (sub === "lite" || sub === "full" || sub === "ultra") {
+      } else if (sub === "lite" || sub === "full") {
         applyLevel(sub, pi, ctx);
       } else {
         ctx.ui.notify(
@@ -230,8 +256,7 @@ export default function caveman(pi: ExtensionAPI) {
             "  /caveman          Toggle on (full as default) / off",
             "  /caveman off      Turn off caveman mode",
             "  /caveman lite     Professional, no fluff",
-            "  /caveman full     Classic caveman (default)",
-            "  /caveman ultra    Maximum compression",
+            "  /caveman full     Maximum compression",
           ].join("\n"),
           "info",
         );
@@ -240,11 +265,19 @@ export default function caveman(pi: ExtensionAPI) {
     },
   });
 
+  const toggleShortcut = loadConfigSync().shortcuts.toggleMode;
+  if (toggleShortcut) {
+    pi.registerShortcut(toggleShortcut as KeyId, {
+      description: "Toggle caveman mode",
+      handler: async (ctx) => cycleLevel(pi, ctx),
+    });
+  }
+
   // Expose lightweight control API for companion extensions (e.g. mode-cycle)
   (globalThis as Record<string, unknown>).__cavemanControl = {
     set: (ctx: ExtensionContext, mode: CavemanMode = "full", notify = true) => applyLevel(mode, pi, ctx, notify),
     off: (ctx: ExtensionContext, notify = true) => applyLevel("off", pi, ctx, notify),
-    toggle: (ctx: ExtensionContext, notify = true) => applyLevel(state.enabled ? "off" : state.mode, pi, ctx, notify),
+    toggle: (ctx: ExtensionContext, notify = true) => cycleLevel(pi, ctx, notify),
     getState: () => ({ enabled: state.enabled, mode: state.mode }),
   };
 }

@@ -163,16 +163,18 @@ export default function chatMode(pi: ExtensionAPI) {
 
   // ─── Shortcut: toggle chat mode ─────────────────────────────────────────────
 
-  pi.registerShortcut(USER_CONFIG.shortcuts.toggleMode as KeyId, {
-    description: "Toggle chat mode",
-    handler: async (ctx) => {
-      if (getMode() === "off") {
-        enterChatMode(ctx);
-      } else {
-        enterOffMode(ctx);
-      }
-    },
-  });
+  if (USER_CONFIG.shortcuts.toggleMode) {
+    pi.registerShortcut(USER_CONFIG.shortcuts.toggleMode as KeyId, {
+      description: "Toggle chat mode",
+      handler: async (ctx) => {
+        if (getMode() === "off") {
+          enterChatMode(ctx);
+        } else {
+          enterOffMode(ctx);
+        }
+      },
+    });
+  }
 
   // ─── Flag: --chat ──────────────────────────────────────────────────────────
 

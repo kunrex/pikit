@@ -1,6 +1,6 @@
 # caveman
 
-Compresses pi's LLM responses from polished prose to prehistoric grunt. Three modes cover the full spectrum from professional-but-tight to maximum compression.
+Compresses pi's LLM responses from polished prose to prehistoric grunt. Two modes cover professional-but-tight and maximum compression.
 
 
 
@@ -8,18 +8,32 @@ Compresses pi's LLM responses from polished prose to prehistoric grunt. Three mo
 
 | Command | Description |
 |---------|-------------|
-| `/caveman` | Toggle on (full as default) / off |
+| `/caveman` | Cycle off → lite → full → off |
 | `/caveman lite` | Professional, no fluff |
-| `/caveman full` | Classic caveman (default) |
-| `/caveman ultra` | Maximum compression |
+| `/caveman full` | Maximum compression |
 
 ## Levels
 
 | Level | Style | Example |
 |-------|-------|---------|
 | **Lite** | No filler. Full sentences. Professional but tight. | "Your component re-renders because you create a new object reference each render." |
-| **Full** | Drop articles, fragments OK. Classic caveman. | "New object ref each render. Wrap in `useMemo`." |
-| **Ultra** | Abbreviations, arrows, maximum compression. | "Inline obj prop → new ref → re-render. `useMemo`." |
+| **Full** | Abbreviations, arrows, maximum compression. | "Inline obj prop → new ref → re-render. `useMemo`." |
+
+## Keyboard Shortcuts
+
+- Default: `super+shift+tab` (Cmd+Shift+Tab on macOS, if your terminal reports the `super` modifier)
+- Configure via `~/.pi/agent/configs/caveman.json`:
+
+```json
+{
+  "defaultLevel": "off",
+  "shortcuts": {
+    "toggleMode": "super+shift+tab"
+  }
+}
+```
+
+Set `shortcuts.toggleMode` to an empty string to disable the shortcut.
 
 ## Persistence
 
@@ -32,11 +46,14 @@ Example config file (`~/.pi/agent/configs/caveman.json`):
 
 ```json
 {
-  "defaultLevel": "full"
+  "defaultLevel": "full",
+  "shortcuts": {
+    "toggleMode": "super+shift+tab"
+  }
 }
 ```
 
-Valid values for `defaultLevel`: `"off"` (default, don't auto-enable), `"lite"`, `"full"`, `"ultra"`. You can edit this file directly — changes take effect on the next session start.
+Valid values for `defaultLevel`: `"off"` (default, don't auto-enable), `"lite"`, `"full"`. Legacy `"ultra"` config/session values are treated as `"full"`. You can edit this file directly — changes take effect on the next session start.
 
 ## How it works
 
