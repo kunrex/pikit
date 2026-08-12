@@ -1,0 +1,5 @@
+{
+  "_comment": "Place this file at ~/.pi/agent/configs/request-throttle.json",
+  "minIntervalMs": 3500,
+  "retryAfterFallbackMs": 30000
+}

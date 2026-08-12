@@ -52,6 +52,7 @@ agent/
     ├── mode-cycle/              # Shift+Tab cycle ring: caveman → chat → plan
     ├── permission-gate/         # Confirms dangerous bash commands before running
     ├── protected-paths/         # Blocks read/write access to sensitive files and directories
+    ├── request-throttle/        # Adds delay/cooldown between provider requests to reduce rate-limit bursts
     ├── llm-council/             # Multi-model council: members answer independently, chairman synthesises
     ├── spinners/                # Rotating spinner verbs while the agent thinks
     ├── startup/                 # Welcome header shown at session start
@@ -145,6 +146,7 @@ npm i
 * **mcp** — A lazy-loading Model Context Protocol bridge. Instead of taxing initialization speeds by parsing all schemas on boot, it exposes tools on demand. → [`README`](agent/extensions/mcp/README.md)
 * **web-access** — Adds live search summaries through the Gemini API and extracts clean markdown formatting from remote URLs and PDF files. → [`README`](agent/extensions/web-access/README.md)
 * **env-loader** — Automatically injects custom `.env` variables into the agent's process context at boot, keeping key management out of global shell files. → [`README`](agent/extensions/env-loader/README.md)
+* **request-throttle** — Adds a minimum interval between provider requests plus `429` cooldown handling to reduce bursty free-tier rate limits. Configurable via `~/.pi/agent/configs/request-throttle.json`. → [`README`](agent/extensions/request-throttle/README.md)
 * **caveman** — Strips away polite conversational filler from the model's output. Features three target tiers: `lite` (concise prose), `full` (prehistoric grunt), and `ultra` (max token compression). → [`README`](agent/extensions/caveman/README.md)
 
 ---
