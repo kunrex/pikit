@@ -27,15 +27,11 @@ agent/
 │   ├── footer.json              # Footer segment configuration — gitignored, see footer/footer.example.json
 │   ├── mcp.json                 # MCP server config — gitignored, see mcp/mcp.example.json
 │   ├── permission-gate.json     # Permission gate patterns — gitignored, see permission-gate.example.json
-│   ├── protected-paths.json     # Protected path entries — gitignored, see protected-paths.example.json
-│   └── .env                     # Secret env vars — gitignored, see env-loader/.env.example
+│   └── protected-paths.json     # Protected path entries — gitignored, see protected-paths.example.json
 ├── APPEND_SYSTEM.md             # Coding guidelines appended to the system prompt every session
 ├── settings-example.json        # Opinionated pi settings — copy to settings.json (gitignored)
 ├── skills/
-│   ├── pi-extension-builder/    # Guidelines for building and modifying extensions in this repo
-│   ├── add-ollama-cloud-model/  # Guidelines for adding an Ollama Cloud model to models.json
-│   ├── gh/                      # Read-only GitHub CLI access via enforced wrapper
-│   └── pr-review/               # Review a GitHub PR and emit findings as a markdown artifact
+│   └── pi-extension-builder/    # Guidelines for building and modifying extensions in this repo
 ├── prompts/
 │   ├── handoff.md               # /handoff — write a session handoff document to .pi/handoffs/
 │   └── pickup.md                # /pickup — resume work from the latest handoff document
@@ -47,7 +43,6 @@ agent/
     ├── chat-input/              # Unicode box border around the main chat input editor
     ├── caveman/                 # Terse response mode with lite/full levels and its own toggle
     ├── chat-mode/               # Read-only conversational mode: chat, explore, search — no edits
-    ├── env-loader/              # Injects .env tokens into process.env at startup
     ├── footer/                  # Status bar with git, tokens, cost, context
     ├── llm-council/             # Multi-model council: members answer independently, chairman synthesises
     ├── mcp/                     # MCP server bridge with lazy connections and proxy tool
@@ -55,7 +50,6 @@ agent/
     ├── permission-gate/         # Confirms dangerous bash commands before running
     ├── plan-mode/               # Plan-then-execute workflow: read-only planning, then execute with plan_complete
     ├── protected-paths/         # Blocks read/write access to sensitive files and directories
-    ├── request-throttle/        # Adds delay/cooldown between provider requests to reduce rate-limit bursts
     ├── spinners/                # Rotating spinner verbs while the agent thinks
     ├── startup/                 # Welcome header shown at session start
     ├── styled-outputs/          # Custom styled rendering for all message types (tools, diffs, thinking, skills)
@@ -145,8 +139,6 @@ npm i
 ### Integrations & Tweaks
 
 * **mcp** — A lazy-loading Model Context Protocol bridge. Instead of taxing initialization speeds by parsing all schemas on boot, it exposes tools on demand. → [`README`](agent/extensions/mcp/README.md)
-* **env-loader** — Automatically injects custom `.env` variables into the agent's process context at boot, keeping key management out of global shell files. → [`README`](agent/extensions/env-loader/README.md)
-* **request-throttle** — Adds a minimum interval between provider requests plus `429` cooldown handling to reduce bursty free-tier rate limits. Configurable via `~/.pi/agent/configs/request-throttle.json`. → [`README`](agent/extensions/request-throttle/README.md)
 * **caveman** — Strips away polite conversational filler from the model's output. Has its own `/caveman` toggle and two target tiers: `lite` (concise prose) and `full` (caveman compression). → [`README`](agent/extensions/caveman/README.md)
 
 ---
@@ -156,18 +148,6 @@ npm i
 ### pi-extension-builder
 
 Loaded when you ask pi to build or modify an extension in this repo. Covers file structure, code conventions, and documentation requirements. Invoke explicitly with `/skill:pi-extension-builder`.
-
-### add-ollama-cloud-model
-
-Loaded when you ask pi to add an Ollama Cloud model. Fetches the model page, extracts capabilities, and writes the correct entry to `models.json`. Invoke explicitly with `/skill:add-ollama-cloud-model`.
-
-### gh
-
-Read-only GitHub CLI access via an enforced wrapper. Lists issues, PRs, repos, runs, releases, and more, but blocks all write, delete, and modify commands. Load when working with GitHub resources. Invoke explicitly with `/skill:gh`.
-
-### pr-review
-
-Review a GitHub PR and emit the findings as a markdown artifact (rendered HTML report in the browser). Gathers the diff via the `gh` skill, reviews it, then produces one `artifact`: verdict up top, findings ranked by severity, per-file `diff` fences. Invoke explicitly with `/skill:pr-review`.
 
 ---
 
@@ -282,6 +262,6 @@ Ollama Cloud needs an API key and a `compat` block, because cloud models don't s
 }
 ```
 
-Browse models at [ollama.com/search](https://ollama.com/search); cloud variants use the `:cloud` suffix. Or skip the JSON and just ask pi: *"Add https://ollama.com/library/qwen3.5 to my Ollama cloud config"*, and the [`add-ollama-cloud-model`](agent/skills/add-ollama-cloud-model/SKILL.md) skill handles it.
+Browse models at [ollama.com/search](https://ollama.com/search); cloud variants use the `:cloud` suffix.
 
 > pi extensions run with full system access; that applies to this kit and anything else you install. Review the source before trusting a package; everything here is small enough to read in one sitting.
