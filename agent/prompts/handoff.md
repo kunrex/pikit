@@ -6,7 +6,13 @@ Create a comprehensive handoff document capturing everything needed to continue 
 
 ## Filename
 
-Save it as `${1:-HANDOFF_<topic>_<MM_DD>_<HH_MM>.md}` — when no name was given, derive `<topic>` from the main subject of this session (short, uppercase, underscores) and fill the timestamp from the current date/time. Save into `.pi/handoffs/` in the project root (same convention as `.pi/plans/`), creating the directory if needed.
+Resolve the output filename before writing anything:
+
+- If a filename was given, use `$1`.
+- If no filename was given, use the `ask_user` tool to ask for the desired handoff filename. Because `ask_user` always adds a "Write my own answer…" option, provide simple choices such as "Enter filename" and "Cancel", and use the user's free-form answer as the filename.
+- The final write target must be `.pi/handoffs/<filename>` in the project root. Create `.pi/handoffs/` if needed.
+
+After resolving the filename, check whether `.pi/handoffs/<filename>` already exists. If it exists, do not overwrite it silently. Use `ask_user` to ask whether to overwrite the existing handoff, choose a different filename, or cancel. If the user chooses a different filename, ask for the new filename and repeat the existence check before writing.
 
 ## Before writing
 
@@ -57,4 +63,5 @@ Commands to run (build, test, dev server), relevant docs/tickets/PRs.
 - Keep it under ~2000 words unless complexity genuinely demands more.
 - Capture *why* decisions were made, not just what was done — rejected approaches save the next session from repeating them.
 - Actually write the file with the write tool; don't just print the content.
+- Never write a handoff until the filename is resolved and any overwrite confirmation has been handled.
 - After saving, tell me the path and remind me to run `/pickup` in a fresh session `/new` to continue from it.
