@@ -1,0 +1,11 @@
+{
+  "lastChangelogVersion": "0.83.0",
+  "theme": "lavender",
+  "packages": [
+    "npm:pi-mlx-models"
+  ],
+  "defaultProvider": "",
+  "defaultModel": "",
+  "defaultThinkingLevel": "medium",
+  "quietStartup": true
+}
