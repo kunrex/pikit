@@ -9,6 +9,7 @@
   <a href="#skills">Skills</a> &nbsp;·&nbsp;
   <a href="#prompt-templates">Prompt templates</a> &nbsp;·&nbsp;
   <a href="#theme">Theme</a> &nbsp;·&nbsp;
+  <a href="#credits">Credits</a> &nbsp;·&nbsp;
   <a href="#configs">Configs</a>
   
 </p>
@@ -29,7 +30,7 @@ agent/
 │   ├── protected-paths.json     # Protected path entries — gitignored, see protected-paths.example.json
 │   └── .env                     # Secret env vars — gitignored, see env-loader/.env.example
 ├── APPEND_SYSTEM.md             # Coding guidelines appended to the system prompt every session
-├── settings.example.json        # Opinionated pi settings — copy to settings.json (gitignored)
+├── settings-example.json        # Opinionated pi settings — copy to settings.json (gitignored)
 ├── skills/
 │   ├── pi-extension-builder/    # Guidelines for building and modifying extensions in this repo
 │   ├── add-ollama-cloud-model/  # Guidelines for adding an Ollama Cloud model to models.json
@@ -39,27 +40,26 @@ agent/
 │   ├── handoff.md               # /handoff — write a session handoff document to .pi/handoffs/
 │   └── pickup.md                # /pickup — resume work from the latest handoff document
 ├── themes/
-│   ├── slop.json                # Default purplish-blue dark theme
-│   └── lavender.json            # Lavender variant (same family palette)
+│   └── lavender.json            # Default lavender theme
 └── extensions/
+    ├── artifacts/               # Visual HTML artifacts (markdown/html) on a lazy localhost server with live reload
+    ├── ask-user/                # Interactive multiple-choice questions from the agent
     ├── chat-input/              # Unicode box border around the main chat input editor
-    ├── caveman/                 # Compresses LLM responses: lite (professional) / full (caveman) / ultra (max compression)
+    ├── caveman/                 # Terse response mode with lite/full levels and its own toggle
+    ├── chat-mode/               # Read-only conversational mode: chat, explore, search — no edits
     ├── env-loader/              # Injects .env tokens into process.env at startup
     ├── footer/                  # Status bar with git, tokens, cost, context
+    ├── llm-council/             # Multi-model council: members answer independently, chairman synthesises
     ├── mcp/                     # MCP server bridge with lazy connections and proxy tool
-    ├── plan-mode/               # Plan-then-execute workflow: read-only planning, then execute with plan_complete
-    ├── chat-mode/               # Read-only conversational mode: chat, explore, search — no edits
-    ├── mode-cycle/              # Shift+Tab cycle ring: caveman → chat → plan
+    ├── mode-cycle/              # Shift+Tab cycle ring for chat/plan modes
     ├── permission-gate/         # Confirms dangerous bash commands before running
+    ├── plan-mode/               # Plan-then-execute workflow: read-only planning, then execute with plan_complete
     ├── protected-paths/         # Blocks read/write access to sensitive files and directories
     ├── request-throttle/        # Adds delay/cooldown between provider requests to reduce rate-limit bursts
-    ├── llm-council/             # Multi-model council: members answer independently, chairman synthesises
     ├── spinners/                # Rotating spinner verbs while the agent thinks
     ├── startup/                 # Welcome header shown at session start
     ├── styled-outputs/          # Custom styled rendering for all message types (tools, diffs, thinking, skills)
-    ├── subagents/               # Delegate tasks to specialized child agents (single, parallel, chain)
-    ├── web-access/              # Web search, page fetching, and PDF extraction
-    └── artifacts/               # Visual HTML artifacts (markdown/html) on a lazy localhost server with live reload
+    └── subagents/               # Delegate tasks to specialized child agents (single, parallel, chain)
 ```
 
 ---
@@ -91,7 +91,7 @@ bash ~/.pi/agent/npm/node_modules/@adrianapan/pikit/setup.sh [flags]
 
 Flag | Description |
 |-|-|
-| `--settings` | Sync `settings.json` (theme: "slop")
+| `--settings` | Sync `settings.json` (theme: "lavender")
 | `--system-prompt` | Sync `APPEND_SYSTEM.md`
 | `--modes` | Sync `configs/chat-mode.json` and `configs/plan-mode.json`
 | `--keybindings` | Sync `keybindings.json` (two Pikit keybinds)
@@ -125,13 +125,14 @@ npm i
 * **chat-mode** — Toggled via `/chat` or `Ctrl+Shift+C`. Locks the filesystem to read-only so you can freely discuss, search, and parse code without risk of accidental changes. → [`README`](agent/extensions/chat-mode/README.md)
 * **subagents** — Delegates isolated tasks to background `pi` subprocesses. Supports running single tasks, parallel batches, or piped execution chains. → [`README`](agent/extensions/subagents/README.md)
 * **llm-council** — Runs questions across a parallel panel of distinct models, then passes their independent findings to a chairman model to synthesize a final answer. → [`README`](agent/extensions/llm-council/README.md)
-* **mode-cycle** — Rebind-friendly mode ring on `Shift+Tab`: cycles `caveman → chat → plan` so one key can drive your high-level working mode. → [`README`](agent/extensions/mode-cycle/README.md)
+* **mode-cycle** — Rebind-friendly mode ring on `Shift+Tab` for quickly cycling between chat/plan workflows. → [`README`](agent/extensions/mode-cycle/README.md)
 
 ### UI & UX
 
 * **styled-outputs** — Swaps flat console readouts for color-coded diff blocks, expandable sections, custom icons, and visual tool groups. → [`README`](agent/extensions/styled-outputs/README.md)
 * **footer** — A dense, customized status line detailing active models, token metrics, live run costs, and current git state. Supports Nerd Fonts and ASCII fallbacks. → [`README`](agent/extensions/footer/README.md)
 * **artifacts** — Renders rich markdown, HTML, and Mermaid diagrams to a self-contained local browser tab featuring live-reloading. → [`README`](agent/extensions/artifacts/README.md)
+* **ask-user** — Lets the agent ask one interactive multiple-choice question in the TUI, always with a custom-answer option. → [`source`](agent/extensions/ask-user/index.ts)
 * **chat-input** — Draws a stylized, isolated Unicode frame around your active terminal prompt line while preserving all underlying editing shortcuts. → [`README`](agent/extensions/chat-input/README.md)
 * **spinners** — Trades static loader indicators for dynamic, timed thinking states and live token accumulators. → [`README`](agent/extensions/spinners/README.md)
 * **startup** — Displays a concise diagnostic dashboard on boot, mapping out active plugins, server states, and shortcut reminders. → [`README`](agent/extensions/startup/README.md)
@@ -144,10 +145,9 @@ npm i
 ### Integrations & Tweaks
 
 * **mcp** — A lazy-loading Model Context Protocol bridge. Instead of taxing initialization speeds by parsing all schemas on boot, it exposes tools on demand. → [`README`](agent/extensions/mcp/README.md)
-* **web-access** — Adds live search summaries through the Gemini API and extracts clean markdown formatting from remote URLs and PDF files. → [`README`](agent/extensions/web-access/README.md)
 * **env-loader** — Automatically injects custom `.env` variables into the agent's process context at boot, keeping key management out of global shell files. → [`README`](agent/extensions/env-loader/README.md)
 * **request-throttle** — Adds a minimum interval between provider requests plus `429` cooldown handling to reduce bursty free-tier rate limits. Configurable via `~/.pi/agent/configs/request-throttle.json`. → [`README`](agent/extensions/request-throttle/README.md)
-* **caveman** — Strips away polite conversational filler from the model's output. Features three target tiers: `lite` (concise prose), `full` (prehistoric grunt), and `ultra` (max token compression). → [`README`](agent/extensions/caveman/README.md)
+* **caveman** — Strips away polite conversational filler from the model's output. Has its own `/caveman` toggle and two target tiers: `lite` (concise prose) and `full` (caveman compression). → [`README`](agent/extensions/caveman/README.md)
 
 ---
 
@@ -185,13 +185,15 @@ Review a GitHub PR and emit the findings as a markdown artifact (rendered HTML r
 
 ## Theme
 
-### slop (default)
+### lavender (default)
 
-A dark, purplish-blue palette tuned for dark terminals — lavender primary (`#9a7cff`), cool blue secondary (`#9db4ff`), and soft off-white text (`#eef2ff`). Covers all 51 pi color tokens (syntax + thinking indicators included). Activate via `/settings → Theme → slop`.
+A lavender/purplish-blue dark theme tuned for terminal use. Activate via `/settings → Theme → lavender`.
 
-### lavender
+---
 
-Lavender-named variant in the same palette family for users who want a more explicit theme label. Activate via `/settings → Theme → lavender`.
+## Credits
+
+Some extension ideas and implementations are adapted from [davis7dotsh/my-pi-setup](https://github.com/davis7dotsh/my-pi-setup), including the newer workflow/helper extensions such as `ask-user`, `subagents`, and `mode-cycle`.
 
 ---
 
