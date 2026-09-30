@@ -1,9 +1,9 @@
 /**
  * ask_user - Lets the model ask a single multiple-choice question.
  *
- * - 2 to 5 model-provided options, plus an always-present "Write my own answer" option
+ * - 1 to 5 model-provided options, plus an always-present custom-answer option
  * - Popup UI: arrow keys or number keys to pick, Enter to confirm
- * - "Write my own answer" opens an inline editor (Esc returns to the options)
+ * - The custom-answer option opens an inline editor (Esc returns to the options)
  * - Esc on the options dismisses the question (the model is told you declined)
  */
 
@@ -24,9 +24,9 @@ import {
   ASK_USER_PROMPT_SNIPPET,
   ASK_USER_TOOL_DESCRIPTION,
   buildAskUserResultMessage,
-} from "./prompt.ts";
+} from "./prompt.js";
 
-const MIN_OPTIONS = 2;
+const MIN_OPTIONS = 1;
 const MAX_OPTIONS = 5;
 
 const OptionSchema = Type.Object({
@@ -49,6 +49,11 @@ const AskUserParams = Type.Object({
     maxItems: MAX_OPTIONS,
     description: ASK_USER_PARAMETER_DESCRIPTIONS.options,
   }),
+  customAnswerLabel: Type.Optional(
+    Type.String({
+      description: ASK_USER_PARAMETER_DESCRIPTIONS.customAnswerLabel,
+    }),
+  ),
 });
 
 export type AskUserInput = Static<typeof AskUserParams>;
@@ -126,7 +131,7 @@ export default function askUser(pi: ExtensionAPI) {
         params.options.length > MAX_OPTIONS
       ) {
         throw new Error(
-          `ask_user requires between ${MIN_OPTIONS} and ${MAX_OPTIONS} options (got ${params.options.length}). Retry with a valid number of options.`,
+          `ask_user requires between ${MIN_OPTIONS} and ${MAX_OPTIONS} normal options (got ${params.options.length}). Retry with a valid number of options; the custom-answer option is appended automatically.`,
         );
       }
 
@@ -138,9 +143,10 @@ export default function askUser(pi: ExtensionAPI) {
         return reply(buildAskUserResultMessage({ kind: "cancelled" }));
       }
 
+      const customAnswerLabel = params.customAnswerLabel?.trim() || "Write my own answer…";
       const allOptions: DisplayOption[] = [
         ...params.options,
-        { label: "Write my own answer…", isOther: true },
+        { label: customAnswerLabel, isOther: true },
       ];
 
       const showQuestion = (uiSignal: AbortSignal) =>
