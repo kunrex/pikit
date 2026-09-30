@@ -43,6 +43,7 @@ agent/
     ├── chat-input/              # Unicode box border around the main chat input editor
     ├── caveman/                 # Terse response mode with lite/full levels and its own toggle
     ├── chat-mode/               # Read-only conversational mode: chat, explore, search — no edits
+    ├── file-selector/           # Interactive TUI file picker tool for choosing existing files
     ├── footer/                  # Status bar with git, tokens, cost, context
     ├── llm-council/             # Multi-model council: members answer independently, chairman synthesises
     ├── mcp/                     # MCP server bridge with lazy connections and proxy tool
@@ -126,10 +127,11 @@ npm i
 * **styled-outputs** — Swaps flat console readouts for color-coded diff blocks, expandable sections, custom icons, and visual tool groups. → [`README`](agent/extensions/styled-outputs/README.md)
 * **footer** — A dense, customized status line detailing active models, token metrics, live run costs, and current git state. Supports Nerd Fonts and ASCII fallbacks. → [`README`](agent/extensions/footer/README.md)
 * **artifacts** — Renders rich markdown, HTML, and Mermaid diagrams to a self-contained local browser tab featuring live-reloading. → [`README`](agent/extensions/artifacts/README.md)
-* **ask-user** — Lets the agent ask one interactive multiple-choice question in the TUI, always with a custom-answer option. → [`source`](agent/extensions/ask-user/index.ts)
+* **ask-user** — Lets the agent ask one interactive multiple-choice question in the TUI, always with a customizable free-form answer option. → [`source`](agent/extensions/ask-user/index.ts)
 * **chat-input** — Draws a stylized, isolated Unicode frame around your active terminal prompt line while preserving all underlying editing shortcuts. → [`README`](agent/extensions/chat-input/README.md)
 * **spinners** — Trades static loader indicators for dynamic, timed thinking states and live token accumulators. → [`README`](agent/extensions/spinners/README.md)
 * **startup** — Displays a concise diagnostic dashboard on boot, mapping out active plugins, server states, and shortcut reminders. → [`README`](agent/extensions/startup/README.md)
+* **file-selector** — Provides a small TUI file picker tool so the agent can ask you to choose an existing file from a directory instead of typing a path. → [`README`](agent/extensions/file-selector/README.md)
 
 ### Guardrails & Safety
 
