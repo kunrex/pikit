@@ -9,10 +9,10 @@ Create a comprehensive handoff document capturing everything needed to continue 
 Resolve the output filename before writing anything:
 
 - If a filename was given, use `$1`.
-- If no filename was given, use the `ask_user` tool to ask for the desired handoff filename. Because `ask_user` always adds a "Write my own answer…" option, provide simple choices such as "Enter filename" and "Cancel", and use the user's free-form answer as the filename.
+- If no filename was given, use the `ask_user` tool to ask for the desired handoff filename with exactly one normal option: "Cancel". Set `customAnswerLabel` to "Enter filename…" and use the user's free-form answer as the filename. Do not add a normal "Enter filename" option.
 - The final write target must be `.pi/handoffs/<filename>` in the project root. Create `.pi/handoffs/` if needed.
 
-After resolving the filename, check whether `.pi/handoffs/<filename>` already exists. If it exists, do not overwrite it silently. Use `ask_user` to ask whether to overwrite the existing handoff, choose a different filename, or cancel. If the user chooses a different filename, ask for the new filename and repeat the existence check before writing.
+After resolving the filename, check whether `.pi/handoffs/<filename>` already exists. If it exists, do not overwrite it silently. Use `ask_user` to ask whether to overwrite the existing handoff or cancel, with `customAnswerLabel` set to "Enter different filename…" for choosing a different filename. If the user enters a different filename, repeat the existence check before writing.
 
 ## Before writing
 
