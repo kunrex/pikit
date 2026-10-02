@@ -33,6 +33,8 @@ All fields are optional — omit any field to keep its default.
 
 ### Assistant message
 
+Assistant fenced code blocks render as themed code panels: the triple-backtick fence markers are hidden, the content gets a darker theme background, and a small top label shows the fence language (or `code` when none is provided).
+
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `assistantMessage.prefix` | `string` | `"●"` | Prefix icon on the first line of content |
