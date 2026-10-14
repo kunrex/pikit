@@ -38,6 +38,10 @@ Example:
 }
 ```
 
+## Dependencies
+
+Runtime dependencies, including `effect`, are declared in the repository's root `package.json`. For a direct clone into `~/.pi`, run `npm install` there once before starting Pi; no per-extension install is needed. Pi installs dependencies when this kit is installed as a managed npm or git package.
+
 ## Notes
 
 - One question per tool call.
