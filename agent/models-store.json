@@ -1687,7 +1687,7 @@
             }
           ]
         },
-        "contextWindow": 272000,
+        "contextWindow": 500000,
         "maxTokens": 128000,
         "thinkingLevelMap": {
           "off": null,
@@ -1717,9 +1717,9 @@
         "type": "chat"
       }
     ],
-    "checkedAt": 1791989215960,
-    "lastModified": 1790859108000,
-    "etag": "W/\"8003e3819641342fe5725e65d6bea0fb\""
+    "checkedAt": 1792894452047,
+    "lastModified": 1792068061000,
+    "etag": "W/\"ff7807f4089ddfed6df00529779cb715\""
   },
   "opencode": {
     "models": [

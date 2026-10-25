@@ -149,8 +149,14 @@ export default function askUser(pi: ExtensionAPI) {
         { label: customAnswerLabel, isOther: true },
       ];
 
-      const showQuestion = (uiSignal: AbortSignal) =>
-        ctx.ui.custom<SelectionResult>((tui, theme, _kb, done) => {
+      const notificationController = new AbortController();
+      const showQuestion = (uiSignal: AbortSignal) => {
+        pi.events.emit("ask-user:question", {
+          question: params.question,
+          ctx,
+          signal: AbortSignal.any([uiSignal, notificationController.signal]),
+        });
+        return ctx.ui.custom<SelectionResult>((tui, theme, _kb, done) => {
           let optionIndex = 0;
           let editMode = false;
           let cachedLines: string[] | undefined;
@@ -160,6 +166,7 @@ export default function askUser(pi: ExtensionAPI) {
           function finish(result: SelectionResult) {
             if (settled) return;
             settled = true;
+            notificationController.abort();
             uiSignal.removeEventListener("abort", cancel);
             done(result);
           }
@@ -334,11 +341,12 @@ export default function askUser(pi: ExtensionAPI) {
             },
           };
         });
+      };
 
       const uiExit = await Effect.runPromiseExit(
         Effect.tryPromise(showQuestion),
         signal ? { signal } : undefined,
-      );
+      ).finally(() => notificationController.abort());
 
       if (Exit.isFailure(uiExit)) {
         if (Cause.hasInterruptsOnly(uiExit.cause)) {

@@ -1,0 +1,4 @@
+{
+  "_comment": "Place this file at ~/.pi/agent/configs/notifications.json. Set url to your complete HTTP POST endpoint; empty disables HTTP delivery.",
+  "url": ""
+}

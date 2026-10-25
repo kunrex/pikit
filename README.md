@@ -140,6 +140,7 @@ npm i
 
 ### Integrations & Tweaks
 
+* **notifications** — Sends task-completion HTTP notifications outside tmux or when detached, local status-line messages for hidden attached panes, and nothing for viewed panes. Endpoint configured globally. → [`README`](agent/extensions/notifications/README.md)
 * **mcp** — A lazy-loading Model Context Protocol bridge. Instead of taxing initialization speeds by parsing all schemas on boot, it exposes tools on demand. → [`README`](agent/extensions/mcp/README.md)
 * **caveman** — Strips away polite conversational filler from the model's output. Has its own `/caveman` toggle and two target tiers: `lite` (concise prose) and `full` (caveman compression). → [`README`](agent/extensions/caveman/README.md)
 

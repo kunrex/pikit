@@ -47,3 +47,4 @@ Runtime dependencies, including `effect`, are declared in the repository's root 
 - One question per tool call.
 - Free-form answer option is added automatically.
 - In non-TUI mode, tool tells the agent no interactive UI is available.
+- With the [notifications extension](../notifications/README.md) loaded, opening a question emits `ask-user:question` and sends an `Input needed` notification through its existing tmux/HTTP routing. Viewing the agent pane suppresses the notification. Delivery runs in the background without delaying the question; answering or dismissing cancels pending delivery. Without that extension, the tool works unchanged.

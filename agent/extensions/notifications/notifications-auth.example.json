@@ -1,0 +1,5 @@
+{
+  "_comment": "Place this file at ~/.pi/agent/configs/notifications-auth.json. Fill both fields for HTTP Basic Auth (equivalent to curl -u username:password). Keep this file private.",
+  "username": "",
+  "password": ""
+}
