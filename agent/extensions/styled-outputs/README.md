@@ -114,7 +114,7 @@ Both use the same header format, status footer, and expandable output. The label
 | `tools.toolError.prefixColor` | `string` | `"error"` | Colour for the error icon |
 | `tools.toolError.labelColor` | `string` | `"error"` | Colour for the error label (status line) |
 | `tools.toolBranch.prefix` | `string` | `"└─"` | Icon before the status line |
-| `tools.toolBranch.color` | `string` | `"separator"` | Colour for the branch icon |
+| `tools.toolBranch.color` | `string` | `"borderMuted"` | Colour for the branch icon |
 
 ### Tool general settings
 
@@ -129,7 +129,7 @@ These apply to all tool types unless overridden by a group.
 | `tools.general.outputColor` | `string` | `"dim"` | Colour for tool output text |
 | `tools.general.maxExpandedLines` | `number` | `40` | Max lines shown when a tool result is expanded |
 | `tools.general.moreColor` | `string` | `"muted"` | Colour for "more" separator text |
-| `tools.general.moreBgColor` | `string` | `"separator"` | Background colour for the "more" separator |
+| `tools.general.moreBgColor` | `string` | `"borderMuted"` | Background colour for the "more" separator |
 | `tools.general.isThemeBackgroundVisible` | `boolean` | `false` | Apply theme background behind tool blocks, skill invocations, and custom messages |
 | `tools.general.verticalPadding` | `number` | `0` | Vertical padding inside tool content boxes (0 = compact, core default = 1) |
 | `tools.general.horizontalPadding` | `number` | `3` | Horizontal padding inside tool content boxes (left+right indent; core default = 1) |
@@ -168,7 +168,7 @@ Example — give MCP tools a different title colour and expanded line limit:
 
 Every colour field accepts either:
 
-- A **pi theme token** — e.g. `"accent"`, `"dim"`, `"muted"`, `"success"`, `"error"`, `"warning"`, `"separator"`, `"toolTitle"`, `"toolDiffAdded"`, `"toolDiffRemoved"`, `"toolDiffContext"`
+- A **pi theme token** — e.g. `"accent"`, `"dim"`, `"muted"`, `"success"`, `"error"`, `"warning"`, `"borderMuted"`, `"toolTitle"`, `"toolDiffAdded"`, `"toolDiffRemoved"`, `"toolDiffContext"`
 - A **hex colour** — e.g. `"#ff6347"`, `"#c07898"`
 
 Theme tokens adapt to your active theme automatically.

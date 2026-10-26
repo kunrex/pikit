@@ -29,8 +29,6 @@
     "warning": "yellow",
     "muted": "gray",
     "dim": "dimGray",
-    "separator": "darkGray",
-    "chatModeBorder": "blue",
     "text": "text",
     "thinkingText": "gray",
     "selectedBg": "selectedBg",

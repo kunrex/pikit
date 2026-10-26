@@ -9,7 +9,7 @@
     },
     "successPrefix": { "prefix": "✓", "color": "success" },
     "errorPrefix": { "prefix": "✗", "color": "error" },
-    "branch": { "prefix": "└─", "color": "separator" },
+    "branch": { "prefix": "└─", "color": "borderMuted" },
     "status": {
       "doneLabel": "Done",
       "doneColor": "success",

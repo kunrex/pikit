@@ -56,7 +56,7 @@
     },
     "toolBranch": {
       "prefix": "└─",
-      "color": "separator"
+      "color": "borderMuted"
     },
     "general": {
       "titleColor": "toolTitle",
@@ -66,7 +66,7 @@
       "outputColor": "dim",
       "maxExpandedLines": 40,
       "moreColor": "muted",
-      "moreBgColor": "separator",
+      "moreBgColor": "borderMuted",
       "isThemeBackgroundVisible": false,
       "verticalPadding": 0,
       "horizontalPadding": 3,

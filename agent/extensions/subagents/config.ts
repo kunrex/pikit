@@ -44,7 +44,7 @@ export const DEFAULT_CONFIG = {
     },
     BRANCH: {
       PREFIX: "└─",
-      COLOR: "separator",
+      COLOR: "borderMuted",
     },
   },
 };

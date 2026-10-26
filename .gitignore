@@ -46,6 +46,9 @@ agent/configs/*
 **/.pi/plans/
 **/.pi/handoffs/
 
+# Crash Logs
+agent/crashes.json
+
 # Keep extension source, prompts, skills, themes, examples trackable.
 # Do not ignore agent/extensions/**, agent/prompts/**, agent/skills/**, or agent/themes/**.
 

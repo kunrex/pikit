@@ -73,7 +73,7 @@ export const DEFAULT_CONFIG = {
     },
     TOOL_BRANCH: {
       PREFIX: "└─",                                   // icon use right before the status line
-      COLOR: "separator",                             // color for the branch icon
+      COLOR: "borderMuted",                             // color for the branch icon
     },
     GENERAL: {
       TITLE_COLOR: "toolTitle",                       // color for tool titles (bash, ls, read, write, etc.)
@@ -83,7 +83,7 @@ export const DEFAULT_CONFIG = {
       OUTPUT_COLOR: "dim",                            // color for tool outputs
       MAX_EXPANDED_LINES: 40,                         // max lines shown when a tool result is expanded
       MORE_COLOR: "muted",                            // color for the separator text
-      MORE_BG_COLOR: "separator",                     // background color for the separator line (empty = no bg)
+      MORE_BG_COLOR: "borderMuted",                     // background color for the separator line (empty = no bg)
       IS_THEME_BACKGROUND_VISIBLE: false,             // whether to apply theme background color to tool outputs
       VERTICAL_PADDING: 0,                            // paddingY for tool content box (0 = compact, core default = 1)
       HORIZONTAL_PADDING: 3,                          // paddingX for tool content box (1 = default, controls left+right indent)
